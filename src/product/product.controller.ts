@@ -52,8 +52,8 @@ export class ProductController {
   }
 
   @Get(":id")
-  findOne(@Param("id") id: string) {
-    return this.productService.findOne(+id);
+  findOne(@Param("id") id: Types.ObjectId) {
+    return this.productService.findOne(id);
   }
 
   @Patch(":id")
@@ -61,8 +61,4 @@ export class ProductController {
     return this.productService.update(+id, updateProductDto);
   }
 
-  @Delete(":id")
-  remove(@Param("id") id: string) {
-    return this.productService.remove(+id);
-  }
 }

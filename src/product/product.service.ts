@@ -1,4 +1,3 @@
-
 import {
   BadRequestException,
   Injectable,
@@ -8,18 +7,9 @@ import { CreateProductDto } from "./dto/create-product.dto.js";
 import { UpdateProductDto } from "./dto/update-product.dto.js";
 import { Model, Types } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
-import {
-  HProductDocument,
-  Product,
-} from "../DB/models/product.model.js";
-import {
-  Category,
-  HcCategoryDocument,
-} from "../DB/models/category.model.js";
-import {
-  Brand,
-  HBrandDocument,
-} from "../DB/models/brand.model.js";
+import { HProductDocument, Product } from "../DB/models/product.model.js";
+import { Category, HcCategoryDocument } from "../DB/models/category.model.js";
+import { Brand, HBrandDocument } from "../DB/models/brand.model.js";
 
 @Injectable()
 export class ProductService {
@@ -44,9 +34,7 @@ export class ProductService {
       throw new NotFoundException("The assigned brand does not exist");
     }
 
-    const supportedCategoryIds = brand.categories.map((id) =>
-      id.toString(),
-    );
+    const supportedCategoryIds = brand.categories.map((id) => id.toString());
 
     if (!supportedCategoryIds.includes(categoryId)) {
       throw new BadRequestException(
@@ -78,19 +66,22 @@ export class ProductService {
     });
   }
 
-  findAll() {
-    return this._productModel.find();
+  async findAll(): Promise<HProductDocument[]> {
+    return await this._productModel
+      .find()
+      .populate(`brand category createdBy`, `-password`);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async findOne(id: Types.ObjectId): Promise<HProductDocument> {
+    const product = await this._productModel
+      .findById(id)
+      .populate(`brand category createdBy`, `-password`);
+    if (!product) throw new BadRequestException(`Product not found`);
+
+    return product;
   }
 
   update(id: number, updateProductDto: UpdateProductDto) {
     return `This action updates a #${id} product`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} product`;
   }
 }
